@@ -5,80 +5,80 @@
 - **Add/View/Update/Delete Tenants** - Complete tenant management
 - **Payment Tracking** - Record payments and track balances
 - **Automatic Reminders** - Get alerts for due and overdue payments
-- **SMS Reminders** - Send payment reminders via SMS (Africa's Talking)
-- **WhatsApp Reminders** - Send payment reminders via WhatsApp (Africa's Talking)
 - **Monthly Summary** - View collection statistics
 - **Search Functionality** - Find tenants by name
+- **Manual Reminders** - Copy payment messages and send via WhatsApp or SMS manually
 
 ## How to Run
 
 ```bash
 cd C:\Users\THINKPAD\tenant_management
-python tenant_manager.py
+pip install -r requirements.txt
+python app.py
 ```
 
-## System Requirements
+Open **http://localhost:5000** in your browser.
 
-- Python 3.x
-- Install Africa's Talking SDK: `pip install africastalking`
+## Deploy to Phone (PythonAnywhere - Free)
 
-## Main Menu Options
-
-1. **Add New Tenant** - Register a new tenant with name, phone, rent amount, and due date
-2. **View All Tenants** - See all tenants with their payment status
-3. **Search Tenant** - Find a tenant by name
-4. **Update Tenant** - Modify tenant information
-5. **Delete Tenant** - Remove a tenant from the system
-6. **Record Payment** - Log a payment from a tenant
-7. **View Tenant Payments** - See payment history for a specific tenant
-8. **Check Reminders** - View all payment reminders (overdue, due today, upcoming)
-9. **Send Reminder (SMS/WhatsApp)** - Send reminder to a specific tenant
-10. **Send Bulk Reminders** - Send reminders to all tenants with due payments
-11. **Monthly Summary** - See collection statistics for a given month
-12. **Setup Messaging** - Configure Africa's Talking credentials
-13. **Exit** - Close the application
-
-## Setup SMS and WhatsApp (Africa's Talking)
+Your landlord can access the system from any phone browser, anywhere.
 
 ### Step 1: Create Account
-1. Go to https://account.africastalking.com
-2. Sign up for a free account
-3. Verify your email and phone number
+1. Go to **https://www.pythonanywhere.com**
+2. Sign up for a **free account** (no credit card needed)
 
-### Step 2: Get API Key
-1. Log in to the dashboard
-2. Go to **Settings** > **API Key**
-3. Copy your API key
+### Step 2: Upload Files
+1. Log in and go to **Dashboard** > **Files**
+2. Click **Upload a file** and upload every file from this project:
+   - `app.py`
+   - `database.py`
+   - `reminders.py`
+   - `tenant_manager.py`
+   - `passenger_wsgi.py`
+   - `requirements.txt`
+   - All files in `templates/` folder
+3. Or use **Git**: In the **Bash console** at the bottom:
+   ```
+   git clone https://github.com/Albert-Mugarura/tenant-management.git
+   ```
 
-### Step 3: Configure in the System
-1. Run the application
-2. Select option **12. Setup Messaging**
-3. Enter your credentials:
-   - Username: Use `sandbox` for testing (or your app username for production)
-   - API Key: Paste your API key from Step 2
-   - WhatsApp Number: Your WhatsApp-enabled phone number (e.g., +2567XXXXXXXX)
+### Step 3: Install Dependencies
+Open the **Bash console** and run:
+```bash
+pip install -r requirements.txt
+```
 
-### Step 4: Test with Sandbox
-- In sandbox mode, use test phone numbers provided by Africa's Talking
-- Sandbox numbers: +254711XXXYYY (use your sandbox test numbers)
-- No real airtime is charged in sandbox mode
+### Step 4: Set Up Web App
+1. Go to **Web** tab > **Add a new web app**
+2. Choose **Manual configuration** > **Python 3.13**
+3. Under **WSGI configuration file**, click the file path and replace contents with:
+   ```python
+   import sys
+   import os
+   project_home = os.path.dirname(os.path.abspath(__file__))
+   if project_home not in sys.path:
+       sys.path.insert(0, project_home)
+   from app import app as application
+   ```
+4. Under **Working directory**, set to your project folder name (e.g., `tenant-management`)
+5. Under **Source code**, set the same project folder
+6. Click **Reload**
 
-### Step 5: Go Production
-1. Add airtime to your Africa's Talking account
-2. Change username from `sandbox` to your production app username
-3. Register a Sender ID (brand name) with MTN/Airtel (~UGX 300,000 one-time)
+### Step 5: Access on Phone
+- Your app URL: **https://yourusername.pythonanywhere.com**
+- Open it on any phone browser
+- **Add to Home Screen** for app-like experience:
+  - **iPhone Safari**: Tap Share > Add to Home Screen
+  - **Android Chrome**: Tap menu > Add to Home Screen
 
-## SMS Pricing (Uganda)
-
-| Provider | Per SMS | Notes |
-|----------|---------|-------|
-| Africa's Talking | ~UGX 25-32 | USD-tied, developer-friendly |
-| Local Providers | UGX 25-35 | Wesendall, EgoSMS, MegaSMS |
-| Twilio | ~UGX 900-1,100 | Expensive for Uganda |
+### Important Notes
+- Database (`tenants.db`) is created automatically on first run
+- Data persists between restarts on PythonAnywhere
+- Free tier: App sleeps after 30 min of no visits (wakes up in ~5 seconds when accessed)
 
 ## Reminder Types
 
-The system sends reminders for:
+The system shows reminders for:
 - **OVERDUE** - Payments past due date (URGENT)
 - **DUE TODAY** - Payment due on current day
 - **DUE TOMORROW** - Payment due next day
@@ -87,7 +87,7 @@ The system sends reminders for:
 ## Message Format
 
 ```
-Dear [Tenant Name], your rent of [Amount] UGX is due on [Date]. 
+Dear [Tenant Name], your rent of [Amount] UGX is due on [Date].
 Balance: [Balance] UGX. - Landlord Joseph
 ```
 
@@ -97,12 +97,14 @@ Data is stored in `tenants.db` (SQLite). This file is created automatically on f
 
 ## Files
 
-- `tenant_manager.py` - Main application
+- `app.py` - Flask web application
+- `passenger_wsgi.py` - PythonAnywhere WSGI entry point
+- `tenant_manager.py` - CLI application
 - `database.py` - Database operations
 - `reminders.py` - Reminder logic
-- `messaging.py` - SMS/WhatsApp integration
-- `messaging_config.json` - Saved credentials (auto-created)
+- `requirements.txt` - Python dependencies
+- `templates/` - HTML templates for the web interface
 
 ## For Landlord Alinaitwe Joseph
 
-This system is designed specifically for you as the sole user. All tenant data, payment records, and reminders are stored locally on your computer.
+This system is designed specifically for you as the sole user. All tenant data, payment records, and reminders are stored locally on your computer or PythonAnywhere server.

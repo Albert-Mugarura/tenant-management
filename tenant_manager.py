@@ -7,10 +7,7 @@ from database import (
     search_tenants, get_monthly_summary
 )
 from reminders import check_and_generate_reminders, display_reminders
-from messaging import (
-    setup_credentials, send_reminder_to_tenant, send_bulk_reminders,
-    send_sms, send_whatsapp, load_config
-)
+
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -31,11 +28,8 @@ def print_menu():
     print("6.  Record Payment")
     print("7.  View Tenant Payments")
     print("8.  Check Reminders")
-    print("9.  Send Reminder (SMS/WhatsApp)")
-    print("10. Send Bulk Reminders")
-    print("11. Monthly Summary")
-    print("12. Setup Messaging (Africa's Talking)")
-    print("13. Exit")
+    print("9.  Monthly Summary")
+    print("10. Exit")
     print("-"*40)
 
 def get_month_name():
@@ -198,67 +192,6 @@ def check_reminders():
     reminders = check_and_generate_reminders()
     display_reminders(reminders)
 
-def send_single_reminder():
-    print("\n--- SEND REMINDER TO TENANT ---")
-    tenant_id = int(input("Enter Tenant ID: "))
-
-    tenant = get_tenant_by_id(tenant_id)
-    if not tenant:
-        print("[ERROR] Tenant not found!")
-        return
-
-    print(f"\nTenant: {tenant['name']}")
-    print(f"Phone: {tenant['phone']}")
-    print(f"Balance: {tenant['balance']:,.0f} UGX")
-
-    print("\nSend via:")
-    print("1. SMS only")
-    print("2. WhatsApp only")
-    print("3. Both SMS and WhatsApp")
-
-    method_choice = input("Select (1-3): ").strip()
-    method = {"1": "sms", "2": "whatsapp", "3": "both"}.get(method_choice, "both")
-
-    confirm = input(f"\nSend reminder to {tenant['name']}? (yes/no): ").strip().lower()
-    if confirm == 'yes':
-        results = send_reminder_to_tenant(tenant, method)
-        print(f"\nResults: SMS={'OK' if results['sms'] else 'FAILED'}, WhatsApp={'OK' if results['whatsapp'] else 'FAILED'}")
-    else:
-        print("[INFO] Cancelled.")
-
-def send_bulk_reminder():
-    print("\n--- SEND BULK REMINDERS ---")
-
-    from reminders import check_and_generate_reminders
-    reminders_data = check_and_generate_reminders()
-
-    if not reminders_data:
-        print("[INFO] No tenants need reminders right now.")
-        return
-
-    print(f"\nFound {len(reminders_data)} tenant(s) needing reminders:")
-    for r in reminders_data:
-        print(f"  - {r['tenant_name']} ({r['urgency']})")
-
-    print("\nSend via:")
-    print("1. SMS only")
-    print("2. WhatsApp only")
-    print("3. Both SMS and WhatsApp")
-
-    method_choice = input("Select (1-3): ").strip()
-    method = {"1": "sms", "2": "whatsapp", "3": "both"}.get(method_choice, "both")
-
-    confirm = input(f"\nSend reminders to all {len(reminders_data)} tenants? (yes/no): ").strip().lower()
-    if confirm == 'yes':
-        tenants = [get_tenant_by_id(r['tenant_id']) for r in reminders_data]
-        tenants = [t for t in tenants if t]
-        send_bulk_reminders(tenants, method)
-    else:
-        print("[INFO] Cancelled.")
-
-def setup_messaging():
-    setup_credentials()
-
 def view_monthly_summary():
     print("\n--- MONTHLY SUMMARY ---")
     month = input(f"Enter month name (e.g., {get_month_name()}): ").strip()
@@ -284,7 +217,7 @@ def main():
         print_menu()
 
         try:
-            choice = input("Select option (1-13): ").strip()
+            choice = input("Select option (1-10): ").strip()
 
             if choice == '1':
                 add_new_tenant()
@@ -303,14 +236,8 @@ def main():
             elif choice == '8':
                 check_reminders()
             elif choice == '9':
-                send_single_reminder()
-            elif choice == '10':
-                send_bulk_reminder()
-            elif choice == '11':
                 view_monthly_summary()
-            elif choice == '12':
-                setup_messaging()
-            elif choice == '13':
+            elif choice == '10':
                 print("\n[GOODBYE] Thank you for using Tenant Management System!")
                 sys.exit(0)
             else:
