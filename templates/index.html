@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Dashboard - Landlord: Alinaitwe Joseph</h1>
+
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <h3>Total Tenants</h3>
+        <div class="value">{{ tenant_count }}</div>
+    </div>
+    <div class="stat-card green">
+        <h3>Collected</h3>
+        <div class="value">{{ "{:,.0f}".format(total_collected) }} UGX</div>
+    </div>
+    <div class="stat-card red">
+        <h3>Outstanding</h3>
+        <div class="value">{{ "{:,.0f}".format(total_outstanding) }} UGX</div>
+    </div>
+    <div class="stat-card orange">
+        <h3>Reminders Pending</h3>
+        <div class="value">{{ reminders|length }}</div>
+    </div>
+</div>
+
+{% if overdue %}
+<div class="card">
+    <h2>Overdue Payments</h2>
+    <table>
+        <tr><th>Tenant</th><th>Phone</th><th>Amount Due</th><th>Balance</th><th>Action</th></tr>
+        {% for t in overdue %}
+        <tr>
+            <td>{{ t.name }}</td>
+            <td>{{ t.phone }}</td>
+            <td>{{ "{:,.0f}".format(t.amount_to_pay) }} UGX</td>
+            <td><span class="badge badge-danger">{{ "{:,.0f}".format(t.balance) }} UGX</span></td>
+            <td><a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Record Payment</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if due_soon %}
+<div class="card">
+    <h2>Due Soon (Next 3 Days)</h2>
+    <table>
+        <tr><th>Tenant</th><th>Phone</th><th>Due Date</th><th>Balance</th><th>Action</th></tr>
+        {% for t in due_soon %}
+        <tr>
+            <td>{{ t.name }}</td>
+            <td>{{ t.phone }}</td>
+            <td>{{ t.date_to_pay }}</td>
+            <td><span class="badge badge-warning">{{ "{:,.0f}".format(t.balance) }} UGX</span></td>
+            <td><a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Record Payment</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>All Tenants</h2>
+    {% if tenants %}
+    <table>
+        <tr><th>Name</th><th>Phone</th><th>Monthly Rent</th><th>Due Date</th><th>Balance</th><th>Action</th></tr>
+        {% for t in tenants %}
+        <tr>
+            <td><a href="{{ url_for('tenant_detail', tenant_id=t.id) }}">{{ t.name }}</a></td>
+            <td>{{ t.phone }}</td>
+            <td>{{ "{:,.0f}".format(t.amount_to_pay) }} UGX</td>
+            <td>{{ t.date_to_pay }}</td>
+            <td>
+                {% if t.balance <= 0 %}
+                <span class="badge badge-success">Paid</span>
+                {% else %}
+                <span class="badge badge-danger">{{ "{:,.0f}".format(t.balance) }} UGX</span>
+                {% endif %}
+            </td>
+            <td class="actions">
+                <a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Pay</a>
+                <a href="{{ url_for('tenant_detail', tenant_id=t.id) }}" class="btn btn-primary btn-sm">Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No tenants yet. <a href="{{ url_for('add_tenant_view') }}">Add your first tenant</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

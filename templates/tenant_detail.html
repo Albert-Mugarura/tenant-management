@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ tenant.name }}{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <h1>{{ tenant.name }}</h1>
+    <div class="actions">
+        <a href="{{ url_for('make_payment', tenant_id=tenant.id) }}" class="btn btn-success">Record Payment</a>
+        {% if tenant.balance > 0 %}
+        <button onclick="showReminder()" class="btn btn-primary">Send Reminder</button>
+        {% endif %}
+        <a href="{{ url_for('edit_tenant', tenant_id=tenant.id) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ url_for('tenants_list') }}" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+{% if tenant.balance > 0 %}
+<div id="reminderBox" style="display: none; background: #e8f5e9; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 2px solid #34a853;">
+    <h3 style="margin-bottom: 10px; color: #34a853;">Reminder Message</h3>
+    <div style="background: white; border-radius: 5px; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd;">
+        <p id="reminderText" style="margin: 0;">Dear {{ tenant.name }}, your rent of {{ "{:,.0f}".format(tenant.amount_to_pay) }} UGX is due on {{ tenant.date_to_pay }}. Balance: {{ "{:,.0f}".format(tenant.balance) }} UGX. - Landlord Joseph</p>
+    </div>
+    <div class="actions">
+        <button onclick="copyReminder()" class="btn btn-primary btn-sm">Copy Message</button>
+        <a href="https://wa.me/{{ tenant.phone|replace('+', '') }}" target="_blank" class="btn btn-success btn-sm">Open WhatsApp</a>
+        <a href="sms:{{ tenant.phone }}" class="btn btn-warning btn-sm">Open SMS</a>
+        <button onclick="hideReminder()" class="btn btn-danger btn-sm">Close</button>
+    </div>
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <h3>Monthly Rent</h3>
+        <div class="value">{{ "{:,.0f}".format(tenant.amount_to_pay) }} UGX</div>
+    </div>
+    <div class="stat-card {% if tenant.balance <= 0 %}green{% else %}red{% endif %}">
+        <h3>Balance</h3>
+        <div class="value">{{ "{:,.0f}".format(tenant.balance) }} UGX</div>
+    </div>
+    <div class="stat-card orange">
+        <h3>Due Date</h3>
+        <div class="value" style="font-size: 1.2em;">{{ tenant.date_to_pay }}</div>
+    </div>
+    <div class="stat-card blue">
+        <h3>Month</h3>
+        <div class="value" style="font-size: 1.2em;">{{ tenant.month }}</div>
+    </div>
+    <div class="stat-card green">
+        <h3>Reminder</h3>
+        <div class="value" style="font-size: 1.2em;">{{ tenant.reminder_days }} days before</div>
+    </div>
+    <div class="stat-card blue">
+        <h3>Channel</h3>
+        <div class="value" style="font-size: 1.2em;">{{ tenant.preferred_channel|upper }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Tenant Information</h2>
+    <p><strong>Phone:</strong> {{ tenant.phone }}</p>
+    <p><strong>Created:</strong> {{ tenant.created_at }}</p>
+</div>
+
+<div class="card">
+    <h2>Payment History</h2>
+    {% if payments %}
+    <table>
+        <tr><th>Date</th><th>Amount Paid</th><th>Month</th></tr>
+        {% for p in payments %}
+        <tr>
+            <td>{{ p.payment_date }}</td>
+            <td>{{ "{:,.0f}".format(p.amount_paid) }} UGX</td>
+            <td>{{ p.month }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No payments recorded yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showReminder() {
+    document.getElementById('reminderBox').style.display = 'block';
+}
+function hideReminder() {
+    document.getElementById('reminderBox').style.display = 'none';
+}
+function copyReminder() {
+    var text = document.getElementById('reminderText').innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        alert('Message copied! Now paste it in WhatsApp or SMS.');
+    });
+}
+</script>
+{% endblock %}

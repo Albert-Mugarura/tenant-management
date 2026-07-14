@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Record Payment - {{ tenant.name }}{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Record Payment</h1>
+
+<div class="card">
+    <div class="stats-grid" style="margin-bottom: 20px;">
+        <div class="stat-card blue">
+            <h3>Tenant</h3>
+            <div class="value" style="font-size: 1.2em;">{{ tenant.name }}</div>
+        </div>
+        <div class="stat-card orange">
+            <h3>Current Balance</h3>
+            <div class="value">{{ "{:,.0f}".format(tenant.balance) }} UGX</div>
+        </div>
+        <div class="stat-card blue">
+            <h3>Monthly Rent</h3>
+            <div class="value">{{ "{:,.0f}".format(tenant.amount_to_pay) }} UGX</div>
+        </div>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label>Amount Paid (UGX)</label>
+            <input type="number" name="amount" required placeholder="e.g. 300000" max="{{ tenant.balance }}">
+        </div>
+        <div class="form-group">
+            <label>Payment Date</label>
+            <input type="date" name="payment_date" value="{{ today }}">
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success">Record Payment</button>
+            <a href="{{ url_for('tenant_detail', tenant_id=tenant.id) }}" class="btn btn-primary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

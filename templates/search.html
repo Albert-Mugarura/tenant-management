@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Search Tenants{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Search Tenants</h1>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Search by Name</label>
+            <input type="text" name="query" placeholder="Enter tenant name..." value="{{ query }}">
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('tenants_list') }}" class="btn btn-warning">View All</a>
+        </div>
+    </form>
+</div>
+
+{% if results is not none %}
+<div class="card">
+    <h2>Search Results ({{ results|length }} found)</h2>
+
+    {% if results %}
+    <table>
+        <tr><th>Name</th><th>Phone</th><th>Rent</th><th>Due Date</th><th>Balance</th><th>Action</th></tr>
+        {% for t in results %}
+        <tr>
+            <td><a href="{{ url_for('tenant_detail', tenant_id=t.id) }}">{{ t.name }}</a></td>
+            <td>{{ t.phone }}</td>
+            <td>{{ "{:,.0f}".format(t.amount_to_pay) }} UGX</td>
+            <td>{{ t.date_to_pay }}</td>
+            <td>
+                {% if t.balance <= 0 %}
+                <span class="badge badge-success">Paid</span>
+                {% else %}
+                <span class="badge badge-danger">{{ "{:,.0f}".format(t.balance) }} UGX</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Pay</a>
+                <a href="{{ url_for('tenant_detail', tenant_id=t.id) }}" class="btn btn-primary btn-sm">Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No tenants found matching "{{ query }}"</p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

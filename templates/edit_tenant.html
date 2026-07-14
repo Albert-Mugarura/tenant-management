@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Edit Tenant{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Edit Tenant</h1>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Tenant Name</label>
+            <input type="text" name="name" required value="{{ tenant.name }}">
+        </div>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" required value="{{ tenant.phone }}">
+        </div>
+        <div class="form-group">
+            <label>Monthly Rent (UGX)</label>
+            <input type="number" name="amount" required value="{{ tenant.amount_to_pay }}">
+        </div>
+        <div class="form-group">
+            <label>Next Payment Date</label>
+            <input type="date" name="date_to_pay" required value="{{ tenant.date_to_pay }}">
+        </div>
+        <div class="form-group">
+            <label>Month</label>
+            <select name="month" required>
+                {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                <option value="{{ m }}" {% if tenant.month == m %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Send Reminder How Many Days Before Due Date?</label>
+            <input type="number" name="reminder_days" value="{{ tenant.reminder_days }}" min="1" max="30" required>
+            <small style="color: #666;">Example: 3 means reminder sent 3 days before payment is due</small>
+        </div>
+        <div class="form-group">
+            <label>Preferred Channel for Reminders</label>
+            <select name="preferred_channel" required>
+                <option value="both" {% if tenant.preferred_channel == 'both' %}selected{% endif %}>Both (WhatsApp first, then SMS if fails)</option>
+                <option value="whatsapp" {% if tenant.preferred_channel == 'whatsapp' %}selected{% endif %}>WhatsApp only</option>
+                <option value="sms" {% if tenant.preferred_channel == 'sms' %}selected{% endif %}>SMS only</option>
+            </select>
+            <small style="color: #666;">Choose how to send reminders to this tenant</small>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success">Update Tenant</button>
+            <a href="{{ url_for('tenant_detail', tenant_id=tenant.id) }}" class="btn btn-primary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

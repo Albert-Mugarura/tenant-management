@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}All Tenants{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <h1>All Tenants</h1>
+    <a href="{{ url_for('add_tenant_view') }}" class="btn btn-primary">+ Add New Tenant</a>
+</div>
+
+<div class="card">
+    {% if tenants %}
+    <table>
+        <tr><th>Name</th><th>Phone</th><th>Monthly Rent</th><th>Due Date</th><th>Month</th><th>Balance</th><th>Actions</th></tr>
+        {% for t in tenants %}
+        <tr>
+            <td><a href="{{ url_for('tenant_detail', tenant_id=t.id) }}" style="color: #1a73e8; text-decoration: none; font-weight: 600;">{{ t.name }}</a></td>
+            <td>{{ t.phone }}</td>
+            <td>{{ "{:,.0f}".format(t.amount_to_pay) }} UGX</td>
+            <td>{{ t.date_to_pay }}</td>
+            <td>{{ t.month }}</td>
+            <td>
+                {% if t.balance <= 0 %}
+                <span class="badge badge-success">Paid</span>
+                {% else %}
+                <span class="badge badge-danger">{{ "{:,.0f}".format(t.balance) }} UGX</span>
+                {% endif %}
+            </td>
+            <td class="actions">
+                <a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Pay</a>
+                <a href="{{ url_for('edit_tenant', tenant_id=t.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                <form action="{{ url_for('delete_tenant_view', tenant_id=t.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete {{ t.name }}?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No tenants yet. <a href="{{ url_for('add_tenant_view') }}">Add your first tenant</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

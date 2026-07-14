@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Reminders{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Payment Reminders</h1>
+
+<div class="card">
+    <h2>Pending Reminders ({{ reminders|length }})</h2>
+    <p style="color: #666; margin-bottom: 20px;">Copy the message and send it manually via WhatsApp or SMS on your phone.</p>
+
+    {% if reminders %}
+    {% for r in reminders %}
+    <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: {% if r.urgency == 'OVERDUE' %}#fff5f5{% elif r.urgency in ['DUE TODAY', 'DUE TOMORROW'] %}#fff8e1{% else %}#f5f5f5{% endif %};">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div>
+                <strong style="font-size: 1.1em;">{{ r.tenant_name }}</strong>
+                <span style="margin-left: 10px;">{{ r.phone }}</span>
+                {% if r.urgency == 'OVERDUE' %}
+                <span class="badge badge-danger" style="margin-left: 10px;">{{ r.urgency }}</span>
+                {% elif r.urgency in ['DUE TODAY', 'DUE TOMORROW'] %}
+                <span class="badge badge-warning" style="margin-left: 10px;">{{ r.urgency }}</span>
+                {% else %}
+                <span class="badge badge-success" style="margin-left: 10px;">{{ r.urgency }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <span style="color: #666;">Remind {{ r.reminder_days }} days before</span>
+            </div>
+        </div>
+        
+        <div style="background: white; border-radius: 5px; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd;">
+            <p style="margin: 0; font-size: 0.95em;">{{ r.message }}</p>
+        </div>
+        
+        <div class="actions">
+            <button onclick="copyMessage(this)" data-message="{{ r.message }}" class="btn btn-primary btn-sm">Copy Message</button>
+            <a href="https://wa.me/{{ r.phone|replace('+', '') }}" target="_blank" class="btn btn-success btn-sm">Open WhatsApp</a>
+            <a href="sms:{{ r.phone }}" class="btn btn-warning btn-sm">Open SMS</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <p>No reminders needed right now. All payments are up to date.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function copyMessage(btn) {
+    var text = btn.getAttribute('data-message');
+    navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = 'Copied!';
+        btn.style.background = '#34a853';
+        setTimeout(function() {
+            btn.textContent = 'Copy Message';
+            btn.style.background = '#1a73e8';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

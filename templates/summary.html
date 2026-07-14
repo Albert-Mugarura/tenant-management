@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Monthly Summary{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Monthly Summary</h1>
+
+<div class="card">
+    <form method="GET">
+        <div class="form-group">
+            <label>Select Month</label>
+            <select name="month">
+                {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                <option value="{{ m }}" {% if month == m %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">View Summary</button>
+    </form>
+</div>
+
+{% if summary and summary.total_tenants > 0 %}
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <h3>Total Tenants</h3>
+        <div class="value">{{ summary.total_tenants }}</div>
+    </div>
+    <div class="stat-card green">
+        <h3>Expected Revenue</h3>
+        <div class="value">{{ "{:,.0f}".format(summary.total_expected) }} UGX</div>
+    </div>
+    <div class="stat-card green">
+        <h3>Collected</h3>
+        <div class="value">{{ "{:,.0f}".format(summary.total_collected) }} UGX</div>
+    </div>
+    <div class="stat-card red">
+        <h3>Outstanding</h3>
+        <div class="value">{{ "{:,.0f}".format(summary.total_outstanding) }} UGX</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Collection Rate</h2>
+    {% set rate = (summary.total_collected / summary.total_expected * 100) if summary.total_expected > 0 else 0 %}
+    <div style="background: #e0e0e0; border-radius: 10px; height: 30px; overflow: hidden;">
+        <div style="background: {% if rate >= 80 %}#34a853{% elif rate >= 50 %}#fbbc04{% else %}#ea4335{% endif %}; height: 100%; width: {{ rate }}%; text-align: center; color: white; line-height: 30px; font-weight: bold;">
+            {{ rate|round(1) }}%
+        </div>
+    </div>
+    <p style="margin-top: 10px; color: #666;">{{ "{:,.0f}".format(summary.total_collected) }} collected out of {{ "{:,.0f}".format(summary.total_expected) }} expected</p>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <p>No data found for {{ month }}. Add tenants to see summary.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

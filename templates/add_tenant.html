@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Add Tenant{% endblock %}
+{% block content %}
+<h1 style="margin-bottom: 25px;">Add New Tenant</h1>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Tenant Name</label>
+            <input type="text" name="name" required placeholder="e.g. Nakamya Sarah">
+        </div>
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" required placeholder="e.g. +256783123456">
+        </div>
+        <div class="form-group">
+            <label>Monthly Rent (UGX)</label>
+            <input type="number" name="amount" required placeholder="e.g. 300000">
+        </div>
+        <div class="form-group">
+            <label>Next Payment Date</label>
+            <input type="date" name="date_to_pay" required>
+        </div>
+        <div class="form-group">
+            <label>Month</label>
+            <select name="month" required>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July" selected>July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Send Reminder How Many Days Before Due Date?</label>
+            <input type="number" name="reminder_days" value="3" min="1" max="30" required>
+            <small style="color: #666;">Example: 3 means reminder sent 3 days before payment is due</small>
+        </div>
+        <div class="form-group">
+            <label>Preferred Channel for Reminders</label>
+            <select name="preferred_channel" required>
+                <option value="both">Both (WhatsApp first, then SMS if fails)</option>
+                <option value="whatsapp">WhatsApp only</option>
+                <option value="sms">SMS only</option>
+            </select>
+            <small style="color: #666;">Choose how to send reminders to this tenant</small>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-success">Save Tenant</button>
+            <a href="{{ url_for('tenants_list') }}" class="btn btn-primary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
