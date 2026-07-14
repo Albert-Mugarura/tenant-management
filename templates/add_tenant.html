@@ -18,6 +18,11 @@
             <input type="number" name="amount" required placeholder="e.g. 300000">
         </div>
         <div class="form-group">
+            <label>Previous Balance (UGX)</label>
+            <input type="number" name="starting_balance" value="0" min="0" placeholder="e.g. 600000">
+            <small style="color: #666;">Amount owed from previous months. Enter 0 if no previous balance.</small>
+        </div>
+        <div class="form-group">
             <label>Next Payment Date</label>
             <input type="date" name="date_to_pay" required>
         </div>

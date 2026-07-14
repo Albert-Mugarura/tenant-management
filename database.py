@@ -41,13 +41,14 @@ def initialize_database():
     conn.commit()
     conn.close()
 
-def add_tenant(name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, preferred_channel='both'):
+def add_tenant(name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, preferred_channel='both', starting_balance=0):
+    balance = amount_to_pay + starting_balance
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO tenants (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (name, phone, amount_to_pay, date_to_pay, amount_to_pay, month, reminder_days, preferred_channel))
+    ''', (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel))
     conn.commit()
     tenant_id = cursor.lastrowid
     conn.close()

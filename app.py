@@ -82,8 +82,9 @@ def add_tenant_view():
         month = request.form['month']
         reminder_days = int(request.form.get('reminder_days', 3))
         preferred_channel = request.form.get('preferred_channel', 'both')
+        starting_balance = float(request.form.get('starting_balance', 0))
 
-        add_tenant(name, phone, amount, date_to_pay, month, reminder_days, preferred_channel)
+        add_tenant(name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance)
         flash(f'Tenant "{name}" added successfully!', 'success')
         return redirect(url_for('tenants_list'))
 

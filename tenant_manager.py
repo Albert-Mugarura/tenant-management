@@ -44,6 +44,7 @@ def add_new_tenant():
     name = input("Tenant Name: ").strip()
     phone = input("Phone Number: ").strip()
     amount = float(input("Monthly Rent (UGX): "))
+    starting_balance = float(input("Previous Balance (UGX) [0]: ").strip() or "0")
     date_str = input("Next Payment Date (YYYY-MM-DD): ").strip()
     month = get_month_name()
 
@@ -53,8 +54,11 @@ def add_new_tenant():
         print("[ERROR] Invalid date format. Use YYYY-MM-DD")
         return
 
-    tenant_id = add_tenant(name, phone, amount, date_str, month)
+    tenant_id = add_tenant(name, phone, amount, date_str, month, starting_balance=starting_balance)
+    total = amount + starting_balance
     print(f"\n[OK] Tenant '{name}' added successfully! (ID: {tenant_id})")
+    if starting_balance > 0:
+        print(f"     Monthly Rent: {amount:,.0f} UGX | Previous Balance: {starting_balance:,.0f} UGX | Total Due: {total:,.0f} UGX")
 
 def view_all_tenants():
     tenants = get_all_tenants()
