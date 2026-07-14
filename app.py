@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from functools import wraps
 from datetime import datetime
 from database import (
     initialize_database, add_tenant, get_all_tenants, get_tenant_by_id,
@@ -10,9 +11,39 @@ from reminders import check_and_generate_reminders
 app = Flask(__name__)
 app.secret_key = 'tenant_management_secret_key_2026'
 
+USERNAME = 'joezy'
+PASSWORD = 'joezy@2026'
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 initialize_database()
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if session.get('logged_in'):
+        return redirect(url_for('index'))
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username == USERNAME and password == PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        flash('Invalid username or password!', 'error')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     tenants = get_all_tenants()
     overdue = get_overdue_tenants()
@@ -35,11 +66,13 @@ def index():
     )
 
 @app.route('/tenants')
+@login_required
 def tenants_list():
     tenants = get_all_tenants()
     return render_template('tenants.html', tenants=tenants)
 
 @app.route('/tenants/add', methods=['GET', 'POST'])
+@login_required
 def add_tenant_view():
     if request.method == 'POST':
         name = request.form['name']
@@ -57,6 +90,7 @@ def add_tenant_view():
     return render_template('add_tenant.html')
 
 @app.route('/tenants/<int:tenant_id>')
+@login_required
 def tenant_detail(tenant_id):
     tenant = get_tenant_by_id(tenant_id)
     if not tenant:
@@ -67,6 +101,7 @@ def tenant_detail(tenant_id):
     return render_template('tenant_detail.html', tenant=tenant, payments=payments)
 
 @app.route('/tenants/<int:tenant_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_tenant(tenant_id):
     tenant = get_tenant_by_id(tenant_id)
     if not tenant:
@@ -89,6 +124,7 @@ def edit_tenant(tenant_id):
     return render_template('edit_tenant.html', tenant=tenant)
 
 @app.route('/tenants/<int:tenant_id>/delete', methods=['POST'])
+@login_required
 def delete_tenant_view(tenant_id):
     tenant = get_tenant_by_id(tenant_id)
     if tenant:
@@ -97,6 +133,7 @@ def delete_tenant_view(tenant_id):
     return redirect(url_for('tenants_list'))
 
 @app.route('/tenants/<int:tenant_id>/pay', methods=['GET', 'POST'])
+@login_required
 def make_payment(tenant_id):
     tenant = get_tenant_by_id(tenant_id)
     if not tenant:
@@ -115,11 +152,13 @@ def make_payment(tenant_id):
     return render_template('make_payment.html', tenant=tenant, today=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/reminders')
+@login_required
 def reminders_view():
     reminders = check_and_generate_reminders()
     return render_template('reminders.html', reminders=reminders)
 
 @app.route('/search', methods=['GET', 'POST'])
+@login_required
 def search_view():
     results = []
     query = ''
@@ -130,6 +169,7 @@ def search_view():
     return render_template('search.html', results=results, query=query)
 
 @app.route('/summary')
+@login_required
 def summary_view():
     month = request.args.get('month', datetime.now().strftime('%B'))
     summary = get_monthly_summary(month)
