@@ -5,8 +5,29 @@ DB_NAME = "tenants.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = lambda cursor, row: dict([d[0], row[i]] for i, d in enumerate(cursor.description))
     return conn
+
+def months_between(date1, date2):
+    d1 = datetime.strptime(date1, '%Y-%m-%d')
+    d2 = datetime.strptime(date2, '%Y-%m-%d')
+    months = (d2.year - d1.year) * 12 + (d2.month - d1.month)
+    if d2.day > d1.day:
+        months += 1
+    return max(months, 0)
+
+def calc_balance(tenant):
+    today = datetime.now().strftime('%Y-%m-%d')
+    months_owed = months_between(tenant['created_at'][:10], today)
+    total_owed = (tenant['starting_balance'] or 0) + (months_owed * tenant['amount_to_pay'])
+    total_paid = 0
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT COALESCE(SUM(amount_paid), 0) as total FROM payments WHERE tenant_id = ?', (tenant['id'],))
+    row = cursor.fetchone()
+    conn.close()
+    total_paid = row['total']
+    return max(total_owed - total_paid, 0)
 
 def initialize_database():
     conn = get_connection()
@@ -114,12 +135,6 @@ def record_payment(tenant_id, amount_paid, payment_date, month):
         VALUES (?, ?, ?, ?)
     ''', (tenant_id, amount_paid, payment_date, month))
 
-    cursor.execute('''
-        UPDATE tenants 
-        SET balance = balance - ?
-        WHERE id = ?
-    ''', (amount_paid, tenant_id))
-
     conn.commit()
     conn.close()
 
@@ -145,7 +160,6 @@ def get_tenants_due_soon(days_before=3):
         SELECT * FROM tenants 
         WHERE date(date_to_pay) <= date(?) 
         AND date(date_to_pay) >= date(?)
-        AND balance > 0
     ''', (upcoming_date.isoformat(), today.isoformat()))
 
     tenants = cursor.fetchall()
@@ -160,7 +174,6 @@ def get_overdue_tenants():
     cursor.execute('''
         SELECT * FROM tenants 
         WHERE date(date_to_pay) < date(?)
-        AND balance > 0
     ''', (today.isoformat(),))
 
     tenants = cursor.fetchall()

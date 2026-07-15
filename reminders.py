@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from database import get_tenants_due_soon, get_overdue_tenants
+from database import get_tenants_due_soon, get_overdue_tenants, calc_balance
 import os
 
 REMINDER_LOG_FILE = "reminders.log"
@@ -40,6 +40,8 @@ def check_and_generate_reminders():
 
     overdue_tenants = get_overdue_tenants()
     for tenant in overdue_tenants:
+        if calc_balance(tenant) <= 0:
+            continue
         urgency, message = generate_payment_reminder(tenant)
         reminders.append({
             'tenant_id': tenant['id'],
@@ -47,15 +49,17 @@ def check_and_generate_reminders():
             'urgency': urgency,
             'message': message,
             'phone': tenant['phone'],
-            'reminder_days': tenant['reminder_days'] if 'reminder_days' in tenant.keys() else 3
+            'reminder_days': tenant.get('reminder_days', 3)
         })
         log_reminder(message)
 
     due_soon_tenants = get_tenants_due_soon(days_before=30)
     for tenant in due_soon_tenants:
+        if calc_balance(tenant) <= 0:
+            continue
         if not any(r['tenant_id'] == tenant['id'] for r in reminders):
             days_until = (datetime.strptime(tenant['date_to_pay'], '%Y-%m-%d').date() - datetime.now().date()).days
-            reminder_days = tenant['reminder_days'] if 'reminder_days' in tenant.keys() else 3
+            reminder_days = tenant.get('reminder_days', 3)
             if days_until <= reminder_days:
                 urgency, message = generate_payment_reminder(tenant)
                 reminders.append({

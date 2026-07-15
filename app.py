@@ -4,7 +4,8 @@ from datetime import datetime
 from database import (
     initialize_database, add_tenant, get_all_tenants, get_tenant_by_id,
     update_tenant, delete_tenant, record_payment, get_tenant_payments,
-    search_tenants, get_monthly_summary, get_tenants_due_soon, get_overdue_tenants
+    search_tenants, get_monthly_summary, get_tenants_due_soon, get_overdue_tenants,
+    calc_balance
 )
 from reminders import check_and_generate_reminders
 
@@ -46,12 +47,16 @@ def logout():
 @login_required
 def index():
     tenants = get_all_tenants()
-    overdue = get_overdue_tenants()
-    due_soon = get_tenants_due_soon(3)
+    for t in tenants:
+        t['balance'] = calc_balance(t)
+    overdue = [t for t in get_overdue_tenants() if calc_balance(t) > 0]
+    for t in overdue:
+        t['balance'] = calc_balance(t)
+    due_soon = [t for t in get_tenants_due_soon(3) if calc_balance(t) > 0]
+    for t in due_soon:
+        t['balance'] = calc_balance(t)
     reminders = check_and_generate_reminders()
 
-    total_expected = sum(t['amount_to_pay'] for t in tenants)
-    total_collected = sum(t['amount_to_pay'] - t['balance'] for t in tenants)
     total_outstanding = sum(t['balance'] for t in tenants)
 
     return render_template('index.html',
@@ -59,8 +64,6 @@ def index():
         overdue=overdue,
         due_soon=due_soon,
         reminders=reminders,
-        total_expected=total_expected,
-        total_collected=total_collected,
         total_outstanding=total_outstanding,
         tenant_count=len(tenants)
     )
@@ -69,6 +72,8 @@ def index():
 @login_required
 def tenants_list():
     tenants = get_all_tenants()
+    for t in tenants:
+        t['balance'] = calc_balance(t)
     return render_template('tenants.html', tenants=tenants)
 
 @app.route('/tenants/add', methods=['GET', 'POST'])
@@ -110,6 +115,7 @@ def tenant_detail(tenant_id):
         flash('Tenant not found!', 'error')
         return redirect(url_for('tenants_list'))
 
+    tenant['balance'] = calc_balance(tenant)
     payments = get_tenant_payments(tenant_id)
     return render_template('tenant_detail.html', tenant=tenant, payments=payments)
 
@@ -199,6 +205,8 @@ def search_view():
         query = request.form.get('query', '')
         if query:
             results = search_tenants(query)
+            for t in results:
+                t['balance'] = calc_balance(t)
     return render_template('search.html', results=results, query=query)
 
 @app.route('/summary')
