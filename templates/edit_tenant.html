@@ -23,14 +23,13 @@
             <small style="color: #666;">Amount owed from previous months. Enter 0 if no previous balance.</small>
         </div>
         <div class="form-group">
-            <label>Previous Balance for Month</label>
-            <select name="starting_balance_month">
-                <option value="">None</option>
+            <label>Previous Balance for Month(s)</label>
+            <select name="starting_balance_month" multiple size="4">
                 {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
-                <option value="{{ m }}" {% if tenant.starting_balance_month == m %}selected{% endif %}>{{ m }}</option>
+                <option value="{{ m }}" {% if tenant.starting_balance_month and m in tenant.starting_balance_month %}selected{% endif %}>{{ m }}</option>
                 {% endfor %}
             </select>
-            <small style="color: #666;">Which month is the previous balance from?</small>
+            <small style="color: #666;">Hold Ctrl/Cmd to select multiple months. Which months is the previous balance from?</small>
         </div>
         <div class="form-group">
             <label>Next Payment Date</label>

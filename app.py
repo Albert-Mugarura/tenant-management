@@ -83,7 +83,8 @@ def add_tenant_view():
         reminder_days = int(request.form.get('reminder_days', 3))
         preferred_channel = request.form.get('preferred_channel', 'both')
         starting_balance = float(request.form.get('starting_balance', 0))
-        starting_balance_month = request.form.get('starting_balance_month', '')
+        starting_balance_month_list = request.form.getlist('starting_balance_month')
+        starting_balance_month = ', '.join(starting_balance_month_list)
 
         add_tenant(name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month)
         flash(f'Tenant "{name}" added successfully!', 'success')
@@ -119,7 +120,8 @@ def edit_tenant(tenant_id):
         reminder_days = int(request.form.get('reminder_days', 3))
         preferred_channel = request.form.get('preferred_channel', 'both')
         starting_balance = float(request.form.get('starting_balance', 0))
-        starting_balance_month = request.form.get('starting_balance_month', '')
+        starting_balance_month_list = request.form.getlist('starting_balance_month')
+        starting_balance_month = ', '.join(starting_balance_month_list)
 
         update_tenant(tenant_id, name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month)
         flash(f'Tenant "{name}" updated successfully!', 'success')
@@ -147,10 +149,17 @@ def make_payment(tenant_id):
     if request.method == 'POST':
         amount = float(request.form['amount'])
         payment_date = request.form.get('payment_date', datetime.now().strftime('%Y-%m-%d'))
-        month = tenant['month']
+        pay_months = request.form.getlist('pay_months')
 
-        record_payment(tenant_id, amount, payment_date, month)
-        flash(f'Payment of {amount:,.0f} UGX recorded!', 'success')
+        if not pay_months:
+            pay_months = [tenant['month']]
+
+        per_month = amount / len(pay_months)
+        for m in pay_months:
+            record_payment(tenant_id, per_month, payment_date, m)
+
+        month_names = ', '.join(pay_months)
+        flash(f'Payment of {amount:,.0f} UGX recorded for {month_names} ({per_month:,.0f} UGX each)!', 'success')
         return redirect(url_for('tenant_detail', tenant_id=tenant_id))
 
     return render_template('make_payment.html', tenant=tenant, today=datetime.now().strftime('%Y-%m-%d'))

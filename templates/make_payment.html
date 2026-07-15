@@ -28,6 +28,15 @@
             <label>Payment Date</label>
             <input type="date" name="payment_date" value="{{ today }}">
         </div>
+        <div class="form-group">
+            <label>Pay for Month(s)</label>
+            <select name="pay_months" multiple size="4">
+                {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                <option value="{{ m }}" {% if m == tenant.month %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+            <small style="color: #666;">Hold Ctrl/Cmd to select multiple months (e.g. paying 3 months ahead). Amount will be split equally across selected months.</small>
+        </div>
         <div class="actions">
             <button type="submit" class="btn btn-success">Record Payment</button>
             <a href="{{ url_for('tenant_detail', tenant_id=tenant.id) }}" class="btn btn-primary">Cancel</a>
