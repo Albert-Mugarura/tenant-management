@@ -23,14 +23,56 @@
             <small style="color: #666;">Amount owed from previous months. Enter 0 if no previous balance.</small>
         </div>
         <div class="form-group">
-            <label>Previous Balance for Month(s)</label>
-            <select name="starting_balance_month" multiple size="4">
-                {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
-                <option value="{{ m }}" {% if tenant.starting_balance_month and m in tenant.starting_balance_month %}selected{% endif %}>{{ m }}</option>
+            <label>Previous Balance Month(s) and Amount(s)</label>
+            <div id="balance-months">
+                {% if tenant.starting_balance_details %}
+                {% set details = tenant.starting_balance_details.split('|') %}
+                {% for item in details %}
+                {% set parts = item.split(':') %}
+                {% if parts|length == 2 %}
+                <div class="balance-row" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                    <select name="balance_month[]" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1;">
+                        <option value="">Select month</option>
+                        {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                        <option value="{{ m }}" {% if parts[0] == m %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="balance_amount[]" value="{{ parts[1] }}" placeholder="Amount (UGX)" min="0" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1;">
+                    <button type="button" onclick="removeBalanceRow(this)" class="btn btn-danger btn-sm" style="padding: 8px 12px;">X</button>
+                </div>
+                {% endif %}
                 {% endfor %}
-            </select>
-            <small style="color: #666;">Hold Ctrl/Cmd to select multiple months. Which months is the previous balance from?</small>
+                {% else %}
+                <div class="balance-row" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                    <select name="balance_month[]" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1;">
+                        <option value="">Select month</option>
+                        {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                        <option value="{{ m }}">{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="balance_amount[]" placeholder="Amount (UGX)" min="0" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1;">
+                    <button type="button" onclick="removeBalanceRow(this)" class="btn btn-danger btn-sm" style="padding: 8px 12px;">X</button>
+                </div>
+                {% endif %}
+            </div>
+            <button type="button" onclick="addBalanceRow()" class="btn btn-primary btn-sm" style="margin-top: 5px;">+ Add Another Month</button>
+            <small style="color: #666; display: block; margin-top: 5px;">Add each month the tenant owes and the amount for that month.</small>
         </div>
+        <script>
+        function addBalanceRow() {
+            var container = document.getElementById('balance-months');
+            var row = container.querySelector('.balance-row').cloneNode(true);
+            row.querySelector('select').value = '';
+            row.querySelector('input').value = '';
+            container.appendChild(row);
+        }
+        function removeBalanceRow(btn) {
+            var rows = document.querySelectorAll('#balance-months .balance-row');
+            if (rows.length > 1) {
+                btn.closest('.balance-row').remove();
+            }
+        }
+        </script>
         <div class="form-group">
             <label>Next Payment Date</label>
             <input type="date" name="date_to_pay" required value="{{ tenant.date_to_pay }}">

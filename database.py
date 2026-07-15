@@ -38,6 +38,11 @@ def initialize_database():
     except Exception:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE tenants ADD COLUMN starting_balance_details TEXT DEFAULT ''")
+    except Exception:
+        pass
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS payments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,14 +57,14 @@ def initialize_database():
     conn.commit()
     conn.close()
 
-def add_tenant(name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, preferred_channel='both', starting_balance=0, starting_balance_month=''):
+def add_tenant(name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, preferred_channel='both', starting_balance=0, starting_balance_month='', starting_balance_details=''):
     balance = amount_to_pay + starting_balance
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO tenants (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel, starting_balance, starting_balance_month)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel, starting_balance, starting_balance_month))
+        INSERT INTO tenants (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel, starting_balance, starting_balance_month, starting_balance_details)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel, starting_balance, starting_balance_month, starting_balance_details))
     conn.commit()
     tenant_id = cursor.lastrowid
     conn.close()
@@ -81,14 +86,14 @@ def get_tenant_by_id(tenant_id):
     conn.close()
     return tenant
 
-def update_tenant(tenant_id, name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, preferred_channel='both', starting_balance=0, starting_balance_month=''):
+def update_tenant(tenant_id, name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, preferred_channel='both', starting_balance=0, starting_balance_month='', starting_balance_details=''):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE tenants 
-        SET name = ?, phone = ?, amount_to_pay = ?, date_to_pay = ?, month = ?, reminder_days = ?, preferred_channel = ?, starting_balance = ?, starting_balance_month = ?
+        SET name = ?, phone = ?, amount_to_pay = ?, date_to_pay = ?, month = ?, reminder_days = ?, preferred_channel = ?, starting_balance = ?, starting_balance_month = ?, starting_balance_details = ?
         WHERE id = ?
-    ''', (name, phone, amount_to_pay, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month, tenant_id))
+    ''', (name, phone, amount_to_pay, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month, starting_balance_details, tenant_id))
     conn.commit()
     conn.close()
 

@@ -82,11 +82,21 @@ def add_tenant_view():
         month = request.form['month']
         reminder_days = int(request.form.get('reminder_days', 3))
         preferred_channel = request.form.get('preferred_channel', 'both')
-        starting_balance = float(request.form.get('starting_balance', 0))
-        starting_balance_month_list = request.form.getlist('starting_balance_month')
-        starting_balance_month = ', '.join(starting_balance_month_list)
+        starting_balance = 0
+        balance_months = request.form.getlist('balance_month[]')
+        balance_amounts = request.form.getlist('balance_amount[]')
+        balance_details = []
+        month_list = []
+        for bm, ba in zip(balance_months, balance_amounts):
+            if bm and ba:
+                amt = float(ba)
+                starting_balance += amt
+                balance_details.append(f"{bm}:{amt}")
+                month_list.append(bm)
+        starting_balance_month = ', '.join(month_list)
+        starting_balance_details = '|'.join(balance_details)
 
-        add_tenant(name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month)
+        add_tenant(name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month, starting_balance_details)
         flash(f'Tenant "{name}" added successfully!', 'success')
         return redirect(url_for('tenants_list'))
 
@@ -119,11 +129,21 @@ def edit_tenant(tenant_id):
         month = request.form['month']
         reminder_days = int(request.form.get('reminder_days', 3))
         preferred_channel = request.form.get('preferred_channel', 'both')
-        starting_balance = float(request.form.get('starting_balance', 0))
-        starting_balance_month_list = request.form.getlist('starting_balance_month')
-        starting_balance_month = ', '.join(starting_balance_month_list)
+        starting_balance = 0
+        balance_months = request.form.getlist('balance_month[]')
+        balance_amounts = request.form.getlist('balance_amount[]')
+        balance_details = []
+        month_list = []
+        for bm, ba in zip(balance_months, balance_amounts):
+            if bm and ba:
+                amt = float(ba)
+                starting_balance += amt
+                balance_details.append(f"{bm}:{amt}")
+                month_list.append(bm)
+        starting_balance_month = ', '.join(month_list)
+        starting_balance_details = '|'.join(balance_details)
 
-        update_tenant(tenant_id, name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month)
+        update_tenant(tenant_id, name, phone, amount, date_to_pay, month, reminder_days, preferred_channel, starting_balance, starting_balance_month, starting_balance_details)
         flash(f'Tenant "{name}" updated successfully!', 'success')
         return redirect(url_for('tenant_detail', tenant_id=tenant_id))
 
