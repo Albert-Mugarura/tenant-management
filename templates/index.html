@@ -119,6 +119,13 @@
                 {% endif %}
             </td>
             <td class="actions">
+                {% if t.paid_ahead %}
+                <div style="margin-bottom: 5px;">
+                    {% for m in t.paid_ahead %}
+                    <span class="badge badge-success" style="font-size: 0.7em;">{{ m }} paid</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Pay</a>
                 <a href="{{ url_for('tenant_detail', tenant_id=t.id) }}" class="btn btn-primary btn-sm">Details</a>
             </td>

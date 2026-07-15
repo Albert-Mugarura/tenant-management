@@ -5,7 +5,7 @@ from database import (
     initialize_database, add_tenant, get_all_tenants, get_tenant_by_id,
     update_tenant, delete_tenant, record_payment, get_tenant_payments,
     search_tenants, get_monthly_summary, get_tenants_due_soon, get_overdue_tenants,
-    calc_balance, remove_paid_month
+    calc_balance, remove_paid_month, get_paid_ahead
 )
 from reminders import check_and_generate_reminders
 
@@ -49,6 +49,7 @@ def index():
     tenants = get_all_tenants()
     for t in tenants:
         t['balance'] = calc_balance(t)
+        t['paid_ahead'] = get_paid_ahead(t)
     overdue = [t for t in get_overdue_tenants() if calc_balance(t) > 0]
     for t in overdue:
         t['balance'] = calc_balance(t)
@@ -116,8 +117,9 @@ def tenant_detail(tenant_id):
         return redirect(url_for('tenants_list'))
 
     tenant['balance'] = calc_balance(tenant)
+    paid_ahead = get_paid_ahead(tenant)
     payments = get_tenant_payments(tenant_id)
-    return render_template('tenant_detail.html', tenant=tenant, payments=payments)
+    return render_template('tenant_detail.html', tenant=tenant, payments=payments, paid_ahead=paid_ahead)
 
 @app.route('/tenants/<int:tenant_id>/edit', methods=['GET', 'POST'])
 @login_required

@@ -73,6 +73,16 @@
     </div>
 </div>
 
+{% if paid_ahead %}
+<div class="card" style="border-left: 4px solid #34a853;">
+    <h2 style="color: #34a853;">Paid Ahead</h2>
+    <p style="margin-bottom: 10px;">This tenant has pre-paid for the following months:</p>
+    {% for m in paid_ahead %}
+    <span class="badge badge-success" style="margin-right: 5px; font-size: 0.9em; padding: 5px 12px;">{{ m }}</span>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="card">
     <h2>Tenant Information</h2>
     <p><strong>Phone:</strong> {{ tenant.phone }}</p>

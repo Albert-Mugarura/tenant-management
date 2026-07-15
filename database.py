@@ -14,13 +14,44 @@ def calc_balance(tenant):
     current_month = datetime.now().strftime('%B')
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT COALESCE(SUM(amount_paid), 0) as total FROM payments WHERE tenant_id = ? AND month = ?', (tenant['id'], current_month))
-    row = cursor.fetchone()
+    cursor.execute('SELECT month, COALESCE(SUM(amount_paid), 0) as total FROM payments WHERE tenant_id = ? GROUP BY month', (tenant['id'],))
+    paid_months = {row['month']: row['total'] for row in cursor.fetchall()}
     conn.close()
-    current_paid = row['total'] or 0
+
+    current_paid = paid_months.get(current_month, 0)
     current_owed = max(tenant['amount_to_pay'] - current_paid, 0)
 
-    return prev_balance + current_owed
+    future_months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+    now = datetime.now()
+    current_idx = future_months.index(current_month)
+    future_paid = 0
+    for i in range(1, 12):
+        idx = (current_idx + i) % 12
+        m = future_months[idx]
+        if m in paid_months:
+            future_paid += max(paid_months[m] - tenant['amount_to_pay'], 0)
+
+    return prev_balance + current_owed - future_paid
+
+def get_paid_ahead(tenant):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT month, COALESCE(SUM(amount_paid), 0) as total FROM payments WHERE tenant_id = ? GROUP BY month', (tenant['id'],))
+    paid_months = {row['month']: row['total'] for row in cursor.fetchall()}
+    conn.close()
+
+    current_month = datetime.now().strftime('%B')
+    all_months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+    now = datetime.now()
+    current_idx = all_months.index(current_month)
+
+    ahead = []
+    for i in range(1, 12):
+        idx = (current_idx + i) % 12
+        m = all_months[idx]
+        if m in paid_months and paid_months[m] >= tenant['amount_to_pay']:
+            ahead.append(m)
+    return ahead
 
 def remove_paid_month(tenant_id, month):
     conn = get_connection()
