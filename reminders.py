@@ -47,7 +47,7 @@ def check_and_generate_reminders():
             'urgency': urgency,
             'message': message,
             'phone': tenant['phone'],
-            'reminder_days': tenant.get('reminder_days', 3)
+            'reminder_days': tenant['reminder_days'] if 'reminder_days' in tenant.keys() else 3
         })
         log_reminder(message)
 

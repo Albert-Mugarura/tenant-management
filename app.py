@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from functools import wraps
 from datetime import datetime
-import traceback
 from database import (
     initialize_database, add_tenant, get_all_tenants, get_tenant_by_id,
     update_tenant, delete_tenant, record_payment, get_tenant_payments,
@@ -11,17 +10,6 @@ from reminders import check_and_generate_reminders
 
 app = Flask(__name__)
 app.secret_key = 'tenant_management_secret_key_2026'
-app.debug = True
-
-@app.errorhandler(500)
-def internal_error(error):
-    tb = traceback.format_exc()
-    return f"<h1>500 Error</h1><pre>{tb}</pre>", 500
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    tb = traceback.format_exc()
-    return f"<h1>Error</h1><pre>{tb}</pre>", 500
 
 USERNAME = 'joezy'
 PASSWORD = 'joezy@2026'
@@ -194,4 +182,4 @@ if __name__ == '__main__':
     print("  Open your browser and go to:")
     print("  http://localhost:5000")
     print("=" * 50 + "\n")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)
