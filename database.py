@@ -23,9 +23,15 @@ def initialize_database():
             month TEXT NOT NULL,
             reminder_days INTEGER DEFAULT 3,
             preferred_channel TEXT DEFAULT 'both',
+            starting_balance REAL DEFAULT 0,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    try:
+        cursor.execute('ALTER TABLE tenants ADD COLUMN starting_balance REAL DEFAULT 0')
+    except Exception:
+        pass
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS payments (
@@ -46,9 +52,9 @@ def add_tenant(name, phone, amount_to_pay, date_to_pay, month, reminder_days=3, 
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO tenants (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel))
+        INSERT INTO tenants (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel, starting_balance)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (name, phone, amount_to_pay, date_to_pay, balance, month, reminder_days, preferred_channel, starting_balance))
     conn.commit()
     tenant_id = cursor.lastrowid
     conn.close()

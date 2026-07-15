@@ -25,12 +25,19 @@
 <div class="card">
     <h2>Overdue Payments</h2>
     <table>
-        <tr><th>Tenant</th><th>Phone</th><th>Amount Due</th><th>Balance</th><th>Action</th></tr>
+        <tr><th>Tenant</th><th>Phone</th><th>Amount Due</th><th>Prev. Balance</th><th>Balance</th><th>Action</th></tr>
         {% for t in overdue %}
         <tr>
             <td>{{ t.name }}</td>
             <td>{{ t.phone }}</td>
             <td>{{ "{:,.0f}".format(t.amount_to_pay) }} UGX</td>
+            <td>
+                {% if t.starting_balance and t.starting_balance > 0 %}
+                <span class="badge badge-warning">{{ "{:,.0f}".format(t.starting_balance) }} UGX</span>
+                {% else %}
+                <span style="color: #999;">-</span>
+                {% endif %}
+            </td>
             <td><span class="badge badge-danger">{{ "{:,.0f}".format(t.balance) }} UGX</span></td>
             <td><a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Record Payment</a></td>
         </tr>
@@ -43,12 +50,19 @@
 <div class="card">
     <h2>Due Soon (Next 3 Days)</h2>
     <table>
-        <tr><th>Tenant</th><th>Phone</th><th>Due Date</th><th>Balance</th><th>Action</th></tr>
+        <tr><th>Tenant</th><th>Phone</th><th>Due Date</th><th>Prev. Balance</th><th>Balance</th><th>Action</th></tr>
         {% for t in due_soon %}
         <tr>
             <td>{{ t.name }}</td>
             <td>{{ t.phone }}</td>
             <td>{{ t.date_to_pay }}</td>
+            <td>
+                {% if t.starting_balance and t.starting_balance > 0 %}
+                <span class="badge badge-warning">{{ "{:,.0f}".format(t.starting_balance) }} UGX</span>
+                {% else %}
+                <span style="color: #999;">-</span>
+                {% endif %}
+            </td>
             <td><span class="badge badge-warning">{{ "{:,.0f}".format(t.balance) }} UGX</span></td>
             <td><a href="{{ url_for('make_payment', tenant_id=t.id) }}" class="btn btn-success btn-sm">Record Payment</a></td>
         </tr>
@@ -73,6 +87,9 @@
                 <span class="badge badge-success">Paid</span>
                 {% else %}
                 <span class="badge badge-danger">{{ "{:,.0f}".format(t.balance) }} UGX</span>
+                {% endif %}
+                {% if t.starting_balance and t.starting_balance > 0 %}
+                <br><small style="color: #f9a825;">Prev: {{ "{:,.0f}".format(t.starting_balance) }} UGX</small>
                 {% endif %}
             </td>
             <td class="actions">

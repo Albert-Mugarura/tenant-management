@@ -9,7 +9,7 @@
 <div class="card">
     {% if tenants %}
     <table>
-        <tr><th>Name</th><th>Phone</th><th>Monthly Rent</th><th>Due Date</th><th>Month</th><th>Balance</th><th>Actions</th></tr>
+        <tr><th>Name</th><th>Phone</th><th>Monthly Rent</th><th>Due Date</th><th>Month</th><th>Prev. Balance</th><th>Balance</th><th>Actions</th></tr>
         {% for t in tenants %}
         <tr>
             <td><a href="{{ url_for('tenant_detail', tenant_id=t.id) }}" style="color: #1a73e8; text-decoration: none; font-weight: 600;">{{ t.name }}</a></td>
@@ -17,6 +17,13 @@
             <td>{{ "{:,.0f}".format(t.amount_to_pay) }} UGX</td>
             <td>{{ t.date_to_pay }}</td>
             <td>{{ t.month }}</td>
+            <td>
+                {% if t.starting_balance and t.starting_balance > 0 %}
+                <span class="badge badge-warning">{{ "{:,.0f}".format(t.starting_balance) }} UGX</span>
+                {% else %}
+                <span style="color: #999;">-</span>
+                {% endif %}
+            </td>
             <td>
                 {% if t.balance <= 0 %}
                 <span class="badge badge-success">Paid</span>

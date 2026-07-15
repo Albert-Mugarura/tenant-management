@@ -33,8 +33,12 @@
         <h3>Monthly Rent</h3>
         <div class="value">{{ "{:,.0f}".format(tenant.amount_to_pay) }} UGX</div>
     </div>
+    <div class="stat-card orange">
+        <h3>Previous Balance</h3>
+        <div class="value" style="font-size: 1.2em;">{{ "{:,.0f}".format(tenant.starting_balance) if tenant.starting_balance else 0 }} UGX</div>
+    </div>
     <div class="stat-card {% if tenant.balance <= 0 %}green{% else %}red{% endif %}">
-        <h3>Balance</h3>
+        <h3>Total Balance</h3>
         <div class="value">{{ "{:,.0f}".format(tenant.balance) }} UGX</div>
     </div>
     <div class="stat-card orange">
