@@ -8,26 +8,46 @@ def get_connection():
     conn.row_factory = lambda cursor, row: dict([d[0], row[i]] for i, d in enumerate(cursor.description))
     return conn
 
-def months_between(date1, date2):
-    d1 = datetime.strptime(date1, '%Y-%m-%d')
-    d2 = datetime.strptime(date2, '%Y-%m-%d')
-    months = (d2.year - d1.year) * 12 + (d2.month - d1.month)
-    if d2.day > d1.day:
-        months += 1
-    return max(months, 0)
-
 def calc_balance(tenant):
-    today = datetime.now().strftime('%Y-%m-%d')
-    months_owed = months_between(tenant['created_at'][:10], today)
-    total_owed = (tenant['starting_balance'] or 0) + (months_owed * tenant['amount_to_pay'])
-    total_paid = 0
+    prev_balance = tenant.get('starting_balance') or 0
+
+    current_month = datetime.now().strftime('%B')
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT COALESCE(SUM(amount_paid), 0) as total FROM payments WHERE tenant_id = ?', (tenant['id'],))
+    cursor.execute('SELECT COALESCE(SUM(amount_paid), 0) as total FROM payments WHERE tenant_id = ? AND month = ?', (tenant['id'], current_month))
     row = cursor.fetchone()
     conn.close()
-    total_paid = row['total']
-    return max(total_owed - total_paid, 0)
+    current_paid = row['total'] or 0
+    current_owed = max(tenant['amount_to_pay'] - current_paid, 0)
+
+    return prev_balance + current_owed
+
+def remove_paid_month(tenant_id, month):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT starting_balance, starting_balance_details FROM tenants WHERE id = ?', (tenant_id,))
+    tenant = cursor.fetchone()
+    if not tenant or not tenant.get('starting_balance_details'):
+        conn.close()
+        return
+
+    details = tenant['starting_balance_details']
+    parts = []
+    remaining_parts = []
+    for item in details.split('|'):
+        segs = item.split(':')
+        if len(segs) == 2:
+            m, a = segs[0], float(segs[1])
+            parts.append((m, a))
+            if m != month:
+                remaining_parts.append(item)
+
+    new_details = '|'.join(remaining_parts)
+    new_balance = sum(float(item.split(':')[1]) for item in remaining_parts if len(item.split(':')) == 2)
+
+    cursor.execute('UPDATE tenants SET starting_balance = ?, starting_balance_details = ? WHERE id = ?', (new_balance, new_details, tenant_id))
+    conn.commit()
+    conn.close()
 
 def initialize_database():
     conn = get_connection()

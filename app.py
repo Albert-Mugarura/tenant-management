@@ -5,7 +5,7 @@ from database import (
     initialize_database, add_tenant, get_all_tenants, get_tenant_by_id,
     update_tenant, delete_tenant, record_payment, get_tenant_payments,
     search_tenants, get_monthly_summary, get_tenants_due_soon, get_overdue_tenants,
-    calc_balance
+    calc_balance, remove_paid_month
 )
 from reminders import check_and_generate_reminders
 
@@ -181,11 +181,19 @@ def make_payment(tenant_id):
             pay_months = [tenant['month']]
 
         per_month = amount / len(pay_months)
+        prev_months_paid = []
         for m in pay_months:
             record_payment(tenant_id, per_month, payment_date, m)
+            prev_detail = tenant.get('starting_balance_details') or ''
+            if m in [item.split(':')[0] for item in prev_detail.split('|') if ':' in item]:
+                remove_paid_month(tenant_id, m)
+                prev_months_paid.append(m)
 
         month_names = ', '.join(pay_months)
-        flash(f'Payment of {amount:,.0f} UGX recorded for {month_names} ({per_month:,.0f} UGX each)!', 'success')
+        msg = f'Payment of {amount:,.0f} UGX recorded for {month_names} ({per_month:,.0f} UGX each)!'
+        if prev_months_paid:
+            msg += f' Previous balance updated: {", ".join(prev_months_paid)} cleared.'
+        flash(msg, 'success')
         return redirect(url_for('tenant_detail', tenant_id=tenant_id))
 
     return render_template('make_payment.html', tenant=tenant, today=datetime.now().strftime('%Y-%m-%d'))
