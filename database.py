@@ -16,7 +16,7 @@ def initialize_database():
         CREATE TABLE IF NOT EXISTS tenants (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            phone TEXT NOT NULL,
+            phone TEXT DEFAULT '',
             amount_to_pay REAL NOT NULL,
             date_to_pay TEXT NOT NULL,
             balance REAL DEFAULT 0,

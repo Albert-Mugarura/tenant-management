@@ -76,7 +76,7 @@ def tenants_list():
 def add_tenant_view():
     if request.method == 'POST':
         name = request.form['name']
-        phone = request.form['phone']
+        phone = request.form.get('phone', '')
         amount = float(request.form['amount'])
         date_to_pay = request.form['date_to_pay']
         month = request.form['month']
@@ -123,7 +123,7 @@ def edit_tenant(tenant_id):
 
     if request.method == 'POST':
         name = request.form['name']
-        phone = request.form['phone']
+        phone = request.form.get('phone', '')
         amount = float(request.form['amount'])
         date_to_pay = request.form['date_to_pay']
         month = request.form['month']

@@ -21,8 +21,10 @@
     </div>
     <div class="actions">
         <button onclick="copyReminder()" class="btn btn-primary btn-sm">Copy Message</button>
+        {% if tenant.phone %}
         <a href="https://wa.me/{{ tenant.phone|replace('+', '') }}" target="_blank" class="btn btn-success btn-sm">Open WhatsApp</a>
         <a href="sms:{{ tenant.phone }}" class="btn btn-warning btn-sm">Open SMS</a>
+        {% endif %}
         <button onclick="hideReminder()" class="btn btn-danger btn-sm">Close</button>
     </div>
 </div>

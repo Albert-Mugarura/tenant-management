@@ -33,8 +33,10 @@
         
         <div class="actions">
             <button onclick="copyMessage(this)" data-message="{{ r.message }}" class="btn btn-primary btn-sm">Copy Message</button>
+            {% if r.phone %}
             <a href="https://wa.me/{{ r.phone|replace('+', '') }}" target="_blank" class="btn btn-success btn-sm">Open WhatsApp</a>
             <a href="sms:{{ r.phone }}" class="btn btn-warning btn-sm">Open SMS</a>
+            {% endif %}
         </div>
     </div>
     {% endfor %}
