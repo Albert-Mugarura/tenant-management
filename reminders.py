@@ -5,8 +5,12 @@ import os
 REMINDER_LOG_FILE = "reminders.log"
 
 def log_reminder(message):
-    with open(REMINDER_LOG_FILE, "a") as f:
-        f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
+    try:
+        log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), REMINDER_LOG_FILE)
+        with open(log_path, "a") as f:
+            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
+    except Exception:
+        pass
 
 def generate_payment_reminder(tenant):
     today = datetime.now().date()
