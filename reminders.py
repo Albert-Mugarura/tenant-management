@@ -55,7 +55,7 @@ def check_and_generate_reminders():
     for tenant in due_soon_tenants:
         if not any(r['tenant_id'] == tenant['id'] for r in reminders):
             days_until = (datetime.strptime(tenant['date_to_pay'], '%Y-%m-%d').date() - datetime.now().date()).days
-            reminder_days = tenant.get('reminder_days', 3)
+            reminder_days = tenant['reminder_days'] if 'reminder_days' in tenant.keys() else 3
             if days_until <= reminder_days:
                 urgency, message = generate_payment_reminder(tenant)
                 reminders.append({
