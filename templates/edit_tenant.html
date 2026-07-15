@@ -18,6 +18,21 @@
             <input type="number" name="amount" required value="{{ tenant.amount_to_pay }}">
         </div>
         <div class="form-group">
+            <label>Previous Balance (UGX)</label>
+            <input type="number" name="starting_balance" value="{{ tenant.starting_balance if tenant.starting_balance else 0 }}" min="0" placeholder="e.g. 600000">
+            <small style="color: #666;">Amount owed from previous months. Enter 0 if no previous balance.</small>
+        </div>
+        <div class="form-group">
+            <label>Previous Balance for Month</label>
+            <select name="starting_balance_month">
+                <option value="">None</option>
+                {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                <option value="{{ m }}" {% if tenant.starting_balance_month == m %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+            <small style="color: #666;">Which month is the previous balance from?</small>
+        </div>
+        <div class="form-group">
             <label>Next Payment Date</label>
             <input type="date" name="date_to_pay" required value="{{ tenant.date_to_pay }}">
         </div>

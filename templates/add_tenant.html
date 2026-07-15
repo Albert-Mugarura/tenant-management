@@ -23,6 +23,25 @@
             <small style="color: #666;">Amount owed from previous months. Enter 0 if no previous balance.</small>
         </div>
         <div class="form-group">
+            <label>Previous Balance for Month</label>
+            <select name="starting_balance_month">
+                <option value="">None</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+            <small style="color: #666;">Which month is the previous balance from?</small>
+        </div>
+        <div class="form-group">
             <label>Next Payment Date</label>
             <input type="date" name="date_to_pay" required>
         </div>

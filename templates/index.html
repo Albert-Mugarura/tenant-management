@@ -34,6 +34,7 @@
             <td>
                 {% if t.starting_balance and t.starting_balance > 0 %}
                 <span class="badge badge-warning">{{ "{:,.0f}".format(t.starting_balance) }} UGX</span>
+                {% if t.starting_balance_month %}<br><small style="color: #666;">{{ t.starting_balance_month }}</small>{% endif %}
                 {% else %}
                 <span style="color: #999;">-</span>
                 {% endif %}
@@ -59,6 +60,7 @@
             <td>
                 {% if t.starting_balance and t.starting_balance > 0 %}
                 <span class="badge badge-warning">{{ "{:,.0f}".format(t.starting_balance) }} UGX</span>
+                {% if t.starting_balance_month %}<br><small style="color: #666;">{{ t.starting_balance_month }}</small>{% endif %}
                 {% else %}
                 <span style="color: #999;">-</span>
                 {% endif %}
@@ -90,6 +92,7 @@
                 {% endif %}
                 {% if t.starting_balance and t.starting_balance > 0 %}
                 <br><small style="color: #f9a825;">Prev: {{ "{:,.0f}".format(t.starting_balance) }} UGX</small>
+                {% if t.starting_balance_month %}<br><small style="color: #666;">({{ t.starting_balance_month }})</small>{% endif %}
                 {% endif %}
             </td>
             <td class="actions">

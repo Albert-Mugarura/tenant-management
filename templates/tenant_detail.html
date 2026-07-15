@@ -36,6 +36,7 @@
     <div class="stat-card orange">
         <h3>Previous Balance</h3>
         <div class="value" style="font-size: 1.2em;">{{ "{:,.0f}".format(tenant.starting_balance) if tenant.starting_balance else 0 }} UGX</div>
+        {% if tenant.starting_balance_month %}<div style="font-size: 0.85em; color: #666; margin-top: 5px;">From {{ tenant.starting_balance_month }}</div>{% endif %}
     </div>
     <div class="stat-card {% if tenant.balance <= 0 %}green{% else %}red{% endif %}">
         <h3>Total Balance</h3>
