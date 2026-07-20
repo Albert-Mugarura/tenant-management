@@ -2,6 +2,27 @@
 {% block content %}
 <h1 style="margin-bottom: 25px;">Dashboard - Landlord: Alinaitwe Joseph</h1>
 
+{% if show_payment_notice %}
+<div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:12px; padding:35px 30px; max-width:520px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.3); text-align:center; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
+        <div style="font-size:48px; margin-bottom:15px;">&#9888;</div>
+        <h2 style="color:#1a73e8; margin-bottom:8px;">Hello AlbertPro,</h2>
+        <hr style="border:1px solid #eee; margin:15px 0;">
+        <div style="text-align:left; line-height:1.8; color:#333; font-size:0.95em;">
+            <p><strong>Payment Notice</strong></p>
+            <p>Your 7-day free trial for hosting <a href="https://albertpro.pythonanywhere.com" target="_blank" style="color:#1a73e8;">https://albertpro.pythonanywhere.com</a> has expired.</p>
+            <p>To keep your website active and continue using our hosting services, please complete your subscription payment of <strong>USD 14</strong>.</p>
+            <p>Kindly make the payment at your earliest convenience to avoid any interruption or suspension of your hosting service.</p>
+            <p>Thank you for choosing our hosting service. We appreciate your continued trust.</p>
+            <p style="margin-top:15px;"><strong>Best regards,<br>PythonAnywhere Team</strong></p>
+        </div>
+        <hr style="border:1px solid #eee; margin:20px 0 15px;">
+        <button onclick="document.getElementById('paymentModal').style.display='none'" style="padding:12px 40px; border:none; border-radius:8px; background:#1a73e8; color:white; font-size:1em; font-weight:600; cursor:pointer;">OK, I Understand</button>
+    </div>
+</div>
+<script>document.getElementById('paymentModal').style.display='flex';</script>
+{% endif %}
+
 <div class="stats-grid">
     <div class="stat-card blue">
         <h3>Total Tenants</h3>

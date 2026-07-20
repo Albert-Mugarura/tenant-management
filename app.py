@@ -34,6 +34,7 @@ def login():
         password = request.form['password']
         if username == USERNAME and password == PASSWORD:
             session['logged_in'] = True
+            session['show_payment_notice'] = True
             return redirect(url_for('index'))
         flash('Invalid username or password!', 'error')
     return render_template('login.html')
@@ -60,13 +61,16 @@ def index():
 
     total_outstanding = sum(t['balance'] for t in tenants)
 
+    show_payment_notice = session.pop('show_payment_notice', False)
+
     return render_template('index.html',
         tenants=tenants,
         overdue=overdue,
         due_soon=due_soon,
         reminders=reminders,
         total_outstanding=total_outstanding,
-        tenant_count=len(tenants)
+        tenant_count=len(tenants),
+        show_payment_notice=show_payment_notice
     )
 
 @app.route('/tenants')
